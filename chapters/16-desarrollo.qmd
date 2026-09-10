@@ -1,0 +1,193 @@
+# Desarrollo
+
+La capa de desarrollo proporciona las herramientas generales necesarias para trabajar con proyectos de software en IASI.
+
+El objetivo no es instalar todas las tecnologías que un proyecto pueda llegar a utilizar, sino disponer de una base suficientemente completa sobre la que cada proyecto pueda añadir después sus dependencias específicas.
+
+En esta capa se han elegido las siguientes herramientas:
+
+- Visual Studio Code
+- Node.js
+- Python
+- Eclipse Temurin *JDK* 21
+- Apache Maven
+- Microsoft C/C++ Build Tools
+- DBeaver Community
+
+Git, PowerShell y Docker ya forman parte de la base del sistema. R y RStudio pertenecen a la capa de documentación y no se instalan de nuevo aquí.
+
+## Visual Studio Code
+
+Visual Studio Code es el entorno principal de desarrollo utilizado por IASI.
+
+Descargar Visual Studio Code para Windows desde
+[Visual Studio Code - Download](https://code.visualstudio.com/download).
+
+También puede instalarse mediante *WinGet*:
+
+```powershell
+winget install --id Microsoft.VisualStudioCode -e
+```
+
+Verificar:
+
+```powershell
+code --version
+```
+
+La instalación de extensiones, GitHub Copilot y la configuración específica de lenguajes se realizará posteriormente.
+
+## Node.js
+
+Node.js proporciona el *runtime* JavaScript utilizado por numerosas herramientas de desarrollo y automatización.
+
+IASI utilizará una versión *LTS*.
+
+Descargar Node.js desde
+[Node.js - Download](https://nodejs.org/en/download).
+
+También puede instalarse mediante *WinGet*:
+
+```powershell
+winget install -e --id OpenJS.NodeJS.LTS
+```
+
+La instalación incluye `npm`.
+
+Verificar:
+
+```powershell
+node --version
+npm --version
+```
+
+## Python
+
+Python se incorpora como lenguaje general para automatización, utilidades, integración y herramientas que puedan necesitarlo.
+
+En Windows se utilizará el Python Install Manager recomendado por la documentación oficial de Python.
+
+Referencia oficial:
+
+[Python - Using Python on Windows](https://docs.python.org/3/using/windows.html)
+
+Instalar el Python Install Manager mediante *WinGet*:
+
+```powershell
+winget install 9NQ7512CXL7T -e --accept-package-agreements --disable-interactivity
+```
+
+Instalar el *runtime* estable predeterminado:
+
+```powershell
+py install default
+```
+
+Verificar:
+
+```powershell
+python --version
+python -m pip --version
+```
+
+Las dependencias Python específicas deberán instalarse dentro de entornos virtuales del proyecto, evitando paquetes globales innecesarios.
+
+## Java
+
+Para desarrollo Java se utilizará Eclipse Temurin *JDK* 21.
+
+La elección de una versión *LTS* proporciona una base estable y ampliamente compatible para proyectos Java.
+
+Referencia oficial:
+
+[Adoptium - Eclipse Temurin](https://adoptium.net/temurin/)
+
+Instalar mediante *WinGet*:
+
+```powershell
+winget install EclipseAdoptium.Temurin.21.JDK
+```
+
+Verificar:
+
+```powershell
+java -version
+javac -version
+```
+
+## Apache Maven
+
+Apache Maven se utilizará como herramienta de *build* y gestión de dependencias para proyectos Java.
+
+Descargar la distribución binaria desde la fuente oficial:
+
+[Apache Maven - Download](https://maven.apache.org/download.cgi)
+
+En Windows:
+
+1. Descargar el archivo binario ZIP.
+2. Descomprimirlo en una ubicación estable.
+3. Definir `MAVEN_HOME` apuntando al directorio de Maven.
+4. Añadir `%MAVEN_HOME%\bin` al `PATH`.
+
+Verificar:
+
+```powershell
+mvn -version
+```
+
+La salida debe mostrar tanto la versión de Maven como el *JDK* utilizado.
+
+## C y C++
+
+Para disponer de compilador, *linker*, cabeceras, librerías y herramientas de compilación nativa se utilizarán Microsoft C++ Build Tools.
+
+No es necesario instalar el *IDE* completo de Visual Studio.
+
+Descargar las herramientas desde
+[Microsoft - Visual Studio Downloads](https://visualstudio.microsoft.com/downloads/).
+
+En el instalador seleccionar la carga de trabajo:
+
+> **Desktop development with C++**
+
+Esta carga instala el conjunto de herramientas MSVC y los componentes necesarios para compilar aplicaciones C y C++ en Windows.
+
+Referencia técnica:
+
+[Microsoft Learn - Install the Microsoft C++ Build Tools](https://learn.microsoft.com/en-us/cpp/overview/acquire-msvc)
+
+Para verificar la instalación, abrir **Developer Command Prompt for Visual Studio** y ejecutar:
+
+```text
+cl
+```
+
+El compilador debe mostrar su versión y la ayuda básica de uso.
+
+## DBeaver
+
+DBeaver Community se utilizará como cliente general para trabajar con bases de datos.
+
+Descargar el instalador para Windows desde
+[DBeaver Community - Download](https://dbeaver.io/download/).
+
+Ejecutar el instalador estándar para Windows.
+
+DBeaver incluye su propio OpenJDK para ejecutar la aplicación. Esto es independiente del *JDK* instalado anteriormente, que se mantiene como parte del entorno general de desarrollo Java.
+
+## Resultado
+
+Una vez completada esta capa, la máquina dispone de una base de desarrollo general:
+
+```text
+Visual Studio Code
+├── Node.js + npm
+├── Python + pip
+├── Java JDK 21
+│   └── Maven
+├── C/C++ Build Tools
+└── DBeaver
+```
+
+Las extensiones de Visual Studio Code, GitHub Copilot, configuraciones de lenguajes, paquetes y herramientas específicas de cada proyecto se incorporarán en la fase de configuración o dentro del propio proyecto.

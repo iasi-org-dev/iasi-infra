@@ -1,0 +1,211 @@
+# Sistemas inteligentes
+
+IASI no plantea el trabajo asistido por inteligencia artificial como la utilización de un único asistente.
+
+El entorno se prepara para trabajar con **varios sistemas inteligentes**, cada uno con capacidades, contexto y formas de interacción diferentes.
+
+La primera configuración de referencia utiliza:
+
+- ChatGPT, como asistente general de razonamiento, análisis, diseño y elaboración.
+- GitHub Copilot, integrado directamente en Visual Studio Code y orientado al trabajo sobre el código y el proyecto.
+- Ollama, de forma opcional, como *runtime* para modelos locales o para servicios de modelos disponibles dentro de la infraestructura.
+
+La capa incorpora además herramientas que permiten estructurar el trabajo y acceder a estos sistemas:
+
+- OpenSpec, para mantener especificaciones persistentes que puedan ser utilizadas por distintos asistentes de desarrollo.
+- Open WebUI, como interfaz web para trabajar con Ollama y otros proveedores compatibles.
+
+La idea no es acumular modelos. El objetivo es disponer de **varios sistemas que puedan participar en el mismo proceso de ingeniería**, apoyados por una infraestructura común.
+
+## ChatGPT
+
+ChatGPT se utiliza como asistente general dentro del proceso IASI.
+
+Puede utilizarse directamente desde la web o mediante la aplicación oficial para Windows.
+
+Referencia oficial:
+
+[OpenAI - ChatGPT para Windows](https://help.openai.com/es-es/articles/9982051-using-the-chatgpt-windows-app)
+
+La aplicación para Windows puede instalarse desde Microsoft Store.
+
+No existe una dependencia técnica entre ChatGPT y el entorno de desarrollo. Su papel es acompañar el trabajo de análisis, diseño, documentación, revisión y construcción del proyecto.
+
+## GitHub Copilot
+
+GitHub Copilot se integra en Visual Studio Code, instalado previamente en la capa de desarrollo.
+
+Referencia oficial:
+
+[GitHub - GitHub Copilot en Visual Studio Code](https://docs.github.com/en/copilot/get-started/quickstart?tool=vscode)
+
+Para utilizarlo:
+
+1. Abrir Visual Studio Code.
+2. Iniciar sesión con la cuenta de GitHub.
+3. Configurar GitHub Copilot desde el propio entorno.
+
+La configuración inicial de Copilot en Visual Studio Code instala automáticamente las extensiones necesarias.
+
+GitHub Copilot aporta asistencia directamente sobre el proyecto abierto en el editor: código, archivos, diagnósticos y contexto de trabajo.
+
+## OpenSpec
+
+OpenSpec no es un sistema inteligente ni un modelo. Es una herramienta de desarrollo dirigido por especificaciones (*Spec-Driven Development*, SDD) que permite mantener especificaciones y cambios persistentes para que puedan ser utilizados por distintos asistentes de programación.
+
+Referencia oficial:
+
+[OpenSpec - Installation](https://github.com/Fission-AI/OpenSpec/blob/main/docs/installation.md)
+
+En IASI, OpenSpec se instala como una **herramienta global del entorno de desarrollo**. La inicialización y configuración de OpenSpec dentro de cada proyecto pertenece al uso de la metodología y no a la preparación de la infraestructura.
+
+OpenSpec requiere Node.js 20.19.0 o superior.
+
+Comprobar la versión instalada:
+
+```powershell
+node --version
+```
+
+Instalar OpenSpec globalmente mediante `npm`:
+
+```powershell
+npm install -g @fission-ai/openspec@latest --allow-scripts=@fission-ai/openspec
+```
+
+Verificar la instalación:
+
+```powershell
+openspec --version
+```
+
+Si Node.js se gestiona mediante `nvm`, los paquetes globales se instalan dentro del entorno del usuario y no es necesario utilizar `sudo`.
+
+La instalación de infraestructura termina en este punto. Comandos como `openspec init` actúan sobre un proyecto concreto y forman parte del flujo de trabajo de IASI.
+
+## Trabajo con varias IA
+
+IASI considera especialmente valioso que distintos sistemas inteligentes puedan trabajar sobre un mismo problema.
+
+```text
+Ingeniero
+├── ChatGPT
+│   └── análisis, diseño, razonamiento, documentación
+│
+└── GitHub Copilot
+    └── código, proyecto, editor, implementación
+```
+
+No se trata de sustituir un sistema por otro.
+
+Cada sistema observa el problema desde un contexto diferente. La interacción entre ellos permite contrastar decisiones, repartir tareas y utilizar la herramienta más adecuada en cada momento.
+
+El ingeniero mantiene la dirección del trabajo, decide qué contexto recibe cada sistema y evalúa las propuestas obtenidas.
+
+## Ollama
+
+Cuando se necesite ejecutar modelos localmente, IASI puede utilizar Ollama como *runtime* de modelos.
+
+Referencia oficial:
+
+[Ollama - Windows](https://docs.ollama.com/windows)
+
+Ollama puede instalarse en la propia máquina o ejecutarse como servicio en otra máquina accesible por red.
+
+En Windows, una instalación local expone normalmente su *API* en:
+
+```text
+http://localhost:11434
+```
+
+Verificar la instalación:
+
+```powershell
+ollama --version
+```
+
+La descarga de modelos no forma parte de la instalación base. Los modelos concretos dependerán del propósito del entorno y de los recursos disponibles.
+
+## Open WebUI
+
+Open WebUI proporciona una interfaz web para trabajar con modelos y proveedores de inteligencia artificial.
+
+Referencia oficial:
+
+[Open WebUI - Quick Start](https://docs.openwebui.com/getting-started/quick-start/)
+
+En la configuración inicial de IASI se utiliza principalmente como interfaz para los modelos servidos por Ollama. Esta separación mantiene diferenciadas las responsabilidades:
+
+```text
+Open WebUI
+    ↓
+Ollama
+    ↓
+modelos locales
+```
+
+Ollama proporciona el *runtime* y la API. Open WebUI proporciona la interfaz de interacción.
+
+La instalación recomendada se realiza mediante Docker, instalado previamente en la capa de infraestructura:
+
+```powershell
+docker pull ghcr.io/open-webui/open-webui:main
+```
+
+Crear el contenedor:
+
+```powershell
+docker run -d -p 3000:8080 -e OLLAMA_BASE_URL=http://host.docker.internal:11434 -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main
+```
+
+La opción `-v open-webui:/app/backend/data` mantiene persistentes la configuración y los datos de Open WebUI aunque el contenedor sea reemplazado.
+
+En una instalación con Ollama ejecutándose en la máquina anfitriona, Open WebUI accede a su API mediante:
+
+```text
+http://host.docker.internal:11434
+```
+
+Comprobar que el contenedor está en ejecución:
+
+```powershell
+docker ps --filter "name=open-webui"
+```
+
+La interfaz queda disponible en:
+
+```text
+http://localhost:3000
+```
+
+La descarga de modelos continúa siendo responsabilidad de Ollama. Open WebUI no sustituye al *runtime*: proporciona una interfaz común para utilizarlo y administrarlo.
+
+## Separación entre sistema y modelo
+
+IASI distingue entre el **sistema inteligente** con el que se trabaja y el **modelo** que ese sistema pueda utilizar.
+
+Por ejemplo, ChatGPT o GitHub Copilot pueden ofrecer distintos modelos sin dejar de ser sistemas de trabajo diferentes.
+
+Esta distinción es importante porque IASI pretende trabajar con varias IA, no simplemente cambiar de modelo dentro de una misma herramienta.
+
+## Resultado
+
+La capa inicial queda organizada en dos grupos:
+
+```text
+Sistemas inteligentes
+├── ChatGPT
+├── GitHub Copilot
+└── Ollama
+    └── modelos locales, cuando sean necesarios
+
+Herramientas de apoyo
+├── OpenSpec
+│   └── especificaciones persistentes y flujo de trabajo
+└── Open WebUI
+    └── interfaz para Ollama y otros proveedores compatibles
+```
+
+ChatGPT y GitHub Copilot constituyen la configuración inicial de trabajo asistido por varias IA.
+
+Ollama proporciona una vía adicional para incorporar modelos locales o servicios propios cuando el proyecto lo requiera. Open WebUI ofrece una interfaz común para trabajar con ellos, mientras que OpenSpec aporta la capa de especificación persistente que puede ser compartida por los distintos asistentes de desarrollo.

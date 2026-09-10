@@ -1,0 +1,130 @@
+# Aislamiento
+
+En un entorno profesional es habitual trabajar para uno o varios clientes y participar, simultánea o sucesivamente, en distintos proyectos.
+
+Durante años fue frecuente que cada empresa proporcionara a sus profesionales un ordenador corporativo completamente gestionado por ella. En determinados entornos de consultoría podía incluso ocurrir que una misma persona dispusiera de varios equipos: uno perteneciente a su empresa y otros entregados por diferentes clientes, ese modelo sigue existiendo, aunque hoy es menos habitual.
+
+Actualmente es frecuente trabajar desde un único ordenador corporativo, o incluso desde un ordenador personal, y acceder a los entornos de los clientes mediante mecanismos como _VPN_, _Citrix_, escritorios remotos o infraestructuras _VDI_.
+
+Estos mecanismos resuelven el acceso al entorno del cliente, pero no resuelven necesariamente un problema distinto: **cómo protegemos nuestro propio entorno de trabajo de las necesidades particulares de cada proyecto**.
+
+- Una VPN para un cliente.
+- Un certificado para otro.
+- Una determinada versión de Java.
+- Un *runtime* específico.
+- Variables de entorno.
+- Clientes corporativos.
+- Configuraciones de red.
+- Credenciales.
+- Extensiones.
+- SDK.
+- Herramientas de seguridad.
+- Configuraciones particulares de Git.
+- ...
+
+Con el tiempo, el ordenador desde el que trabajamos puede terminar convertido en la suma histórica de todos los proyectos en los que hemos participado. IASI evita deliberadamente ese modelo.
+
+## El ordenador no es el proyecto
+
+El ordenador personal o corporativo desde el que trabajamos debería mantenerse, en la medida de lo posible, estable y limpio y dedicado a su función corporativa. 
+
+Su función no es absorber las herramientas, dependencias y configuraciones particulares de todos nuestros clientes.
+
+Cuando cada nuevo proyecto instala directamente sobre el ordenador todo aquello que necesita, terminamos construyendo algo parecido a esto:
+
+Después de suficiente tiempo resulta difícil determinar qué pertenece realmente al entorno base y qué fue incorporado únicamente porque un proyecto concreto lo necesitaba, y el problema no es solo el desorden.
+
+Los proyectos empiezan a contaminarse entre sí, una actualización necesaria para un proyecto puede romper otro. Una nueva versión de una herramienta puede modificar un comportamiento anterior. Una VPN puede alterar rutas de red. Una variable de entorno puede afectar a programas aparentemente independientes. Una configuración realizada meses atrás puede seguir actuando cuando ya hemos olvidado por qué estaba allí.
+
+También desaparece la reproducibilidad, si un proyecto funciona porque nuestro ordenador ha acumulado durante años pequeñas modificaciones cuyo origen ya no conocemos, entonces no tenemos realmente un entorno definido.
+
+Tenemos una máquina que funciona por acumulación histórica.
+
+## El principio de *isolation*
+
+IASI aplica por tanto un principio sencillo:
+
+> **Cada proyecto, y cada cliente cuando constituya un contexto independiente, vive en su propia máquina virtual.**
+
+La máquina virtual constituye la frontera principal de aislamiento.
+
+```text
+Ordenador personal o corporativo
+│
+├── Máquina virtual · Cliente A / Proyecto A
+├── Máquina virtual · Cliente A / Proyecto B
+├── Máquina virtual · Cliente B / Proyecto C
+└── Máquina virtual · IASI
+```
+
+Cada entorno dispone de sus propias herramientas, versiones, configuraciones, certificados, credenciales y mecanismos de acceso, una _VPN_ necesaria para el cliente A se instala en la máquina virtual correspondiente al cliente A, una versión determinada de Java necesaria para el proyecto B pertenece a la máquina virtual del proyecto B, una configuración particular de Git pertenece a ese entorno, una herramienta que queremos evaluar para IASI se instala en el entorno IASI.
+
+El ordenador físico queda fuera de esas decisiones, su función es proporcionar los recursos necesarios para ejecutar las máquinas virtuales, no convertirse en el recipiente de todas ellas.
+
+Podemos resumirlo así:
+
+> **El ordenador físico no es el entorno de trabajo. Es la infraestructura que aloja los entornos de trabajo.**
+
+## Cliente y proyecto como frontera
+
+La expresión «una máquina virtual por proyecto» debe entenderse como una regla de aislamiento, no como una obligación administrativa rígida, en algunos clientes varios proyectos pueden compartir exactamente el mismo contexto, las mismas herramientas y las mismas restricciones. En ese caso puede resultar razonable que compartan también una máquina virtual, en otros casos, dos proyectos del mismo cliente pueden tener requisitos suficientemente diferentes como para necesitar entornos independientes.
+
+La pregunta relevante es:
+
+> **¿Puede un cambio necesario para este trabajo afectar a otro trabajo distinto?**
+
+Si la respuesta es sí, existe una frontera que debemos aislar, cuando necesitemos un contexto de trabajo independiente creamos una maquina virtual, la cual contendrá uno o varios proyectos. Lo importante no es su denominación, sino que sus decisiones técnicas no se propaguen accidentalmente fuera de él.
+
+## La infraestructura del cliente no sustituye al aislamiento
+
+Muchos clientes proporcionan ya mecanismos de acceso o aislamiento, Una _VDI_ puede ofrecer un escritorio completamente gestionado por el cliente, _Citrix_ puede permitir trabajar dentro de una infraestructura remota, una VPN puede establecer una conexión segura con la red corporativa, e incluso un ordenador corporativo entregado por el propio cliente constituye un entorno físico independiente. Todo ello es compatible con el principio de *isolation*.
+
+Pero son fronteras con responsabilidades diferentes, la infraestructura proporcionada por el cliente protege y organiza **su entorno**, la máquina virtual que utilizamos nosotros protege y organiza **nuestro contexto de trabajo**.
+La existencia de una _VDI_*_ al otro lado de una conexión no implica que queramos instalar directamente sobre nuestro ordenador físico la VPN, los certificados, las configuraciones de red y cualquier otra dependencia necesaria para alcanzarla, todo ese contexto debe permanecer dentro de la máquina virtual asociada al cliente. Cuando dejamos de trabajar con él, podemos apagarla, archivarla o eliminarla, nuestro ordenador permanece esencialmente igual que antes.
+
+## Una máquina virtual no es un contenedor
+
+IASI utiliza deliberadamente una **máquina virtual** como unidad principal de aislamiento del entorno de trabajo. No utilizamos un *container* para resolver este problema, los contenedores son una tecnología muy útil, pero están orientados a una frontera diferente: aplicaciones, servicios, procesos o componentes desplegables. Aquí queremos aislar algo mayor:
+
+**el puesto de trabajo completo asociado a un contexto profesional.**
+
+Queremos incluir dentro de esa frontera el sistema operativo, las herramientas de desarrollo, los *runtimes*, los navegadores, los clientes VPN, los certificados, las herramientas gráficas, las configuraciones del usuario y cualquier otro elemento necesario para desarrollar el trabajo.
+
+Ambos mecanismos pueden coexistir perfectamente, el _container_*_ parte del entorno pero no sustituye al entorno. La máquina virtual establece la frontera del proyecto. Los contenedores, cuando sean necesarios, establecen fronteras internas dentro de ella.
+
+## Un modelo probado en la práctica
+
+Este enfoque no es únicamente una construcción teórica, es el modelo de trabajo utilizado por el autor durante años en proyectos reales y ha demostrado ser extraordinariamente operativo. Las máquinas virtuales no tienen por qué residir permanentemente en el disco interno del ordenador, principalmente cuando tus clientes se acumulan. Ademas de tu ordenador corporativo tienes un almacenamiento externo donde almacenas tus VM, cuando necesitas una, la copias a tu disco interno (por temas de rendimiento) y cuando ya no es necesaria, la copias al almacenamiento externo.
+
+## Aislar también permite cambiar de ordenador
+
+Este modelo modifica nuestra relación con el equipo físico, el ordenador deja de ser el lugar donde reside nuestra historia profesional y pasa a ser la plataforma sobre la que ejecutamos temporalmente el entorno que necesitamos. 
+Esto permite cambiar de ordenador sin tener que reconstruir durante días todos los contextos anteriores, permite conservar proyectos antiguos sin mantener instaladas sus herramientas y permite volver a un proyecto tiempo después recuperando su máquina.
+
+## El punto de partida de IASI Infra
+
+El principio de *isolation* tiene una consecuencia fundamental para todo lo que sigue en este documento.
+
+**A partir de este punto asumimos siempre que partimos de una máquina virtual limpia.**
+
+No intentaremos adaptar una estación de trabajo que lleva años acumulando programas, versiones y configuraciones, no intentaremos descubrir qué dependencias preexistentes pueden aprovecharse, no daremos por hecho que existe ninguna herramienta instalada salvo aquellas que formen parte de la instalación base del sistema operativo.
+
+Nuestro punto cero es:
+
+> **Una máquina virtual limpia con un sistema operativo base recién instalado.**
+
+Esta premisa simplifica radicalmente la documentación.Cuando indiquemos que necesitamos Git, Java, R, Quarto, Docker o cualquier otra herramienta, estaremos describiendo qué se necesita incorporar a un entorno limpio para convertirse en un entorno IASI, no estaremos documentando cómo reparar, adaptar o reconciliar una máquina preexistente. Ese problema queda fuera de alcance.
+
+Esto proporciona además una referencia inequívoca para la reproducibilidad: si el procedimiento funciona partiendo de una máquina limpia con el sistema operativo base, entonces conocemos realmente las dependencias del entorno.
+
+## Principio de _rebuildability_
+
+Existe una propiedad especialmente valiosa de este modelo.
+
+Si un entorno está correctamente aislado y definido, dejar de necesitarlo o que simplemente se "corrompa" no debería plantear ningún problema, la máquina virtual puede eliminarse. Ese gesto constituye una buena prueba de arquitectura.
+
+Si eliminar o que falle una máquina virtual nos preocupa porque contiene algo que no sabemos reconstruir, entonces parte del conocimiento del proyecto continúa encerrado dentro de ella, si podemos destruirla sabiendo que somos capaces de crear otra equivalente desde una máquina limpia, entonces el entorno está realmente bajo nuestro control.
+
+Por eso el principio de ***isolation*** está estrechamente relacionado con el de ***rebuildability***. Un proyecto tiene básicamente dos patas: El software y herramientas que le dan soporte, y los artifactos construidos. Partimos de la base esencial de que los artefactos mantienen una copia de seguridad actualizada en la nube, por ejemplo _github_ o, segun la confidencialidad, en algún otro dispositivo no público.
+
+A partir de ahi, recrear la maquina virtual es tan simple como crear una nueva de acuerdo con su manual de instalación, y recuperar los artefactos de su lugar de almacenamiento.

@@ -1,0 +1,24 @@
+# Introducción
+
+Descargar IASI no es suficiente para disponer de un entorno IASI operativo.
+
+Los distintos componentes del ecosistema dependen de una infraestructura que permita ejecutarlos, construirlos, probarlos y mantenerlos de forma reproducible. Esa infraestructura incluye el sistema operativo, las herramientas de desarrollo, los runtimes, los servicios auxiliares y la configuración necesaria para que todo funcione de manera coherente.
+
+`iasi-infra` documenta esa capa.
+
+El objetivo no es describir paso a paso cómo instalar cada programa. Ese tipo de documentación ya existe y, además, cambia con mucha más frecuencia que la arquitectura que queremos definir aquí.
+
+Siempre que sea posible, nos limitaremos a:
+
+- identificar el software o servicio necesario;
+- explicar para qué se utiliza dentro del entorno IASI;
+- indicar las decisiones de configuración relevantes;
+- enlazar a su documentación o sitio oficial.
+
+Solo detallaremos un procedimiento de instalación cuando exista algún requisito, configuración o particularidad específica de IASI que haga necesario hacerlo.
+
+De este modo, este documento no pretende sustituir la documentación de Windows, Linux, Quarto, R, Docker, Java, Git o cualquier otra herramienta utilizada. Su función es explicar **cómo encajan esas piezas para formar un entorno IASI reproducible**.
+
+La infraestructura no es un añadido posterior al proyecto. Forma parte de él.
+
+Un repositorio puede contener todo el código necesario y, aun así, no ser reproducible si nadie sabe con precisión qué entorno necesita para funcionar. `iasi-infra` intenta cerrar precisamente esa brecha.

@@ -1,0 +1,53 @@
+project:
+  type: book
+
+profile:
+  group:
+    - [html, pdf]
+
+metadata-files:
+  - _book-structure.yml
+
+lang: es
+
+website:
+  title: "IASI Infraestructura"
+
+  sidebar:
+    style: docked
+    search: true
+    contents: auto
+
+  navbar:
+    left:
+      - text: "Inicio"
+        href: index.qmd
+      - text: "Aislamiento"
+        href: chapters/12-isolation.qmd
+      - text: "VM"
+        href: chapters/13-vm.qmd
+      - text: "Sistema operativo"
+        href: chapters/14-so-base.qmd
+      - text: "Documentación"
+        href: chapters/15-documentation.qmd
+      - text: "Desarrollo"
+        href: chapters/16-desarrollo.qmd
+      - text: "SS II"
+        href: chapters/17-sistemas-inteligentes.qmd
+      - text: "IASI"
+        href: chapters/18-iasi.qmd
+      - text: "Post"
+        href: chapters/19-postinstalacion.qmd
+      - text: "Docker"
+        href: chapters/20-docker.qmd
+
+    right:
+      - icon: github
+        href: https://github.com/iasi-org/iasi-infra
+        aria-label: GitHub
+
+  page-footer:
+    left: "IASI · Ingeniería Aumentada por Sistemas Inteligentes"
+    right:
+      - text: GitHub
+        href: https://github.com/iasi-org

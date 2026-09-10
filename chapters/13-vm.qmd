@@ -1,0 +1,59 @@
+# Maquina virtual
+
+Como se ha indicado, el principio de _isolation_ dice que cada proyecto vive en su propia maquina virtual.
+
+El hipervisor puede ser cualquiera de los disponibles en el mercado.
+
+## Configuración recomendada
+
+La capacidad de la máquina virtual dependerá principalmente de si los modelos de inteligencia artificial se ejecutan en la propia máquina o mediante servicios externos.
+
+| | 🖥️ Sin IA local | 🧠 Con IA local |
+|---|---:|---:|
+| ⚙️ **CPU** | 4 vCPU | 8 vCPU |
+| 🧮 **Memoria** | 16 GB RAM | 32 GB RAM |
+| 💾 **Disco** | 150 GB | 250 GB |
+| 📦 **Tipo de disco** | Dinámico | Dinámico |
+| 🪟 **Sistema operativo** | Windows 11 | Windows 11 |
+| 🌐 **Red** | Acceso a Internet | Acceso a Internet |
+| 🖥️ **Resolución** | 1920 × 1080 | 1920 × 1080 |
+
+La configuración **sin IA local** es la recomendada para una máquina IASI estándar cuando los servicios de inteligencia artificial se ejecutan externamente. 
+La configuración **con IA local** proporciona recursos adicionales para ejecutar Ollama y modelos locales dentro de la propia máquina.
+
+> **Estas configuraciones son puntos de partida recomendados, no requisitos de IASI.**
+
+Normalmente, los recursos pueden ajustarse posteriormente sin modificar la definición funcional del entorno en todas los hipervisores.
+
+
+## Trick: Windows sin cuenta ni pin"
+
+A la hora de realizar las pruebas se ha detectado que ls ultimas versiones de Windows 11, aparentemente, exigen tener una cuenta de Microsoft y configurar un PIN. Hacerlo o no hacerlo es decision del usuario, este es un trick para evitarlo.
+
+### Evitar la cuenta de Microsoft (Iniciar sesión)
+
+Cuando el instalador te obligue a conectarte a internet o a iniciar sesión con un correo, haz lo siguiente:
+
+En la pantalla donde te pide el correo, presiona la combinación de teclas Shift + F10 (en algunas laptops es Fn + Shift + F10).
+
+Se abrirá una ventana negra de comandos (Símbolo del sistema).
+
+Escribe exactamente este comando y presiona Enter: **OOBE\BYPASSNRO**
+
+La máquina virtual se reiniciará automáticamente, al volver a la pantalla de red, aparecerá un nuevo botón que dice "No tengo internet".
+
+Haz clic ahí.Selecciona "Continuar con la configuración limitada". 
+
+Ahora te dejará escribir cualquier nombre de usuario local sin pedirte correos ni contraseñas obligatorias.
+
+### Evitar la creación del PINS
+
+si el instalador te obliga a crear un PIN de seguridad de Windows Hello después de poner tu contraseña, usa este atajo:
+
+Cuando aparezca la ventana flotante que te obliga a configurar el PIN, haz clic en Cancelar o cierra esa ventana específica si te da la opción.
+Si no te deja cancelar, deja los campos del PIN completamente vacíos.
+
+Presiona la tecla Esc (Escape) en tu teclado o haz clic en la flecha de "Atrás" en la esquina superior izquierda de la pantalla.
+
+El sistema se saltará el paso del PIN y te llevará directamente al escritorio de Windows
+

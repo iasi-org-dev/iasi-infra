@@ -1,0 +1,13 @@
+---
+title: IASI Infraestructura
+number-sections: false
+---
+
+::: {.content-visible when-format="html"}
+
+Infraestructura reproducible para crear, configurar y preparar entornos de trabajo IASI desde cero.
+
+![](resources/images/portada2.png)
+
+:::
+

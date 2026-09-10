@@ -1,0 +1,12 @@
+project:
+  output-dir: _outputs/pdf
+
+book:
+  output-file: "iasi-infra"
+
+format:
+  pdf:
+    documentclass: scrreprt
+    papersize: a4
+    toc: true
+    number-sections: true

@@ -1,0 +1,253 @@
+# Postinstalación
+
+Una vez instaladas las herramientas y descargados los repositorios, queda preparar el entorno para que los distintos componentes de IASI puedan utilizarse entre sí.
+
+La postinstalación no incorpora nuevas capas de software general. Su función es **materializar los componentes propios de IASI, instalar sus extensiones y arrancar los servicios necesarios**.
+
+La secuencia inicial es:
+
+```text
+Repositorios descargados
+↓
+instalar iasi.quarto
+↓
+instalar extensiones de iasi-lua
+↓
+configurar servicios
+↓
+Docker Compose
+↓
+verificar el entorno
+```
+
+## iasi.quarto
+
+`iasi.quarto` es un paquete R y debe instalarse desde el repositorio local previamente descargado.
+
+Desde RStudio, situados en el directorio raíz `iasi-org`, puede instalarse con:
+
+```r
+remotes::install_local(
+  "iasi_quarto",
+  upgrade = "never"
+)
+```
+
+`remotes::install_local()` permite instalar un paquete directamente desde un directorio local.
+
+Referencia:
+
+[remotes - install_local](https://remotes.r-lib.org/reference/install_local.html)
+
+Verificar:
+
+```r
+library(iasi.quarto)
+
+packageVersion("iasi.quarto")
+```
+
+Esta instalación utiliza el código presente en el repositorio local.
+
+La generación de documentación del paquete, la ejecución de pruebas y otras tareas propias de su desarrollo no forman parte de esta postinstalación.
+
+## iasi-lua
+
+El repositorio `iasi-lua` contiene extensiones Quarto utilizadas por los proyectos IASI.
+
+Las extensiones Quarto se instalan de forma local dentro de cada proyecto que las necesita. Quarto crea para ello el directorio `_extensions`.
+
+Referencia:
+
+[Quarto - Managing Extensions](https://quarto.org/docs/extensions/managing)
+
+Desde el directorio de un proyecto:
+
+```bash
+quarto add ../iasi-lua
+```
+
+Por ejemplo:
+
+```bash
+cd iasi-book
+quarto add ../iasi-lua
+cd ..
+```
+
+y:
+
+```bash
+cd iasi-infra
+quarto add ../iasi-lua
+cd ..
+```
+
+Quarto también permite evitar la confirmación interactiva:
+
+```bash
+quarto add ../iasi-lua --no-prompt
+```
+
+Referencia:
+
+[Quarto CLI - add](https://quarto.org/docs/cli/add.html)
+
+La instalación debe realizarse únicamente en los proyectos que utilicen las extensiones de `iasi-lua`.
+
+El resultado esperado será similar a:
+
+```text
+iasi-book/
+└── _extensions/
+    └── iasi-plantuml/
+
+iasi-infra/
+└── _extensions/
+    └── iasi-plantuml/
+```
+
+Las extensiones quedan junto al proyecto que las utiliza, favoreciendo que el proyecto conserve su propia definición reproducible.
+
+## Servicios
+
+Algunos componentes utilizados por IASI no son aplicaciones instaladas directamente en la máquina de desarrollo.
+
+Se ejecutan como servicios.
+
+Inicialmente se contemplan:
+
+```text
+Servicios
+├── PlantUML
+├── Ollama
+└── Open WebUI
+```
+
+Estos servicios pueden ejecutarse en la propia máquina o en una máquina de servicios independiente.
+
+La ubicación física del servicio no debe alterar la configuración funcional del proyecto.
+
+## Resolución de nombres
+
+Cuando los servicios se ejecuten en otra máquina, la máquina IASI debe poder resolver su nombre.
+
+Por ejemplo, si PlantUML se publica mediante:
+
+```text
+http://javier:1025
+```
+
+el nombre `javier` debe resolverse desde la máquina IASI hacia la dirección IP correspondiente.
+
+En Windows puede definirse, cuando sea necesario, en:
+
+```text
+C:\Windows\System32\drivers\etc\hosts
+```
+
+Por ejemplo:
+
+```text
+192.168.x.x    javier
+```
+
+La dirección concreta depende de la infraestructura y no debe fijarse en la documentación común.
+
+## Docker Compose
+
+La definición de los servicios se realizará mediante Docker Compose.
+
+Docker Compose permite crear y arrancar los servicios definidos en un archivo Compose mediante:
+
+```bash
+docker compose up -d
+```
+
+Referencia:
+
+[Docker - docker compose up](https://docs.docker.com/reference/cli/docker/compose/up/)
+
+La composición concreta se definirá posteriormente, pero deberá contemplar al menos los servicios que formen parte de la infraestructura IASI:
+
+```text
+Docker Compose
+├── PlantUML
+├── Ollama
+└── Open WebUI
+```
+
+No todos los servicios tienen por qué ejecutarse necesariamente en la misma máquina.
+
+## Modelos
+
+Una vez disponible Ollama podrán incorporarse los modelos seleccionados para la plataforma local:
+
+```text
+Ollama
+├── Llama
+├── Qwen
+└── DeepSeek
+```
+
+La descarga de los modelos forma parte de la preparación de la plataforma de sistemas inteligentes, pero las variantes y tamaños concretos dependerán de los recursos disponibles.
+
+## Verificación
+
+La postinstalación debe terminar comprobando que cada capa puede utilizar la siguiente.
+
+### Paquete R
+
+```r
+library(iasi.quarto)
+
+packageVersion("iasi.quarto")
+```
+
+### Extensiones Quarto
+
+Desde cada proyecto que utilice extensiones:
+
+```bash
+quarto list extensions
+```
+
+### Servicios
+
+```bash
+docker compose ps
+```
+
+### PlantUML
+
+Desde la máquina IASI:
+
+```bash
+curl http://javier:1025
+```
+
+### Plataforma de IA
+
+Cuando los servicios estén desplegados, deberán ser accesibles mediante sus puntos de entrada definidos.
+
+## Resultado
+
+Después de la postinstalación, el entorno deja de ser únicamente una máquina con herramientas y repositorios.
+
+Los componentes empiezan a estar conectados entre sí:
+
+```text
+IASI
+├── repositorios
+├── iasi.quarto instalado
+├── extensiones iasi-lua materializadas
+├── PlantUML accesible
+└── plataforma IA preparada
+    ├── Open WebUI
+    ├── Ollama
+    └── modelos
+```
+
+La instalación crea la máquina.
+
+La postinstalación convierte esa máquina en un entorno IASI operativo.

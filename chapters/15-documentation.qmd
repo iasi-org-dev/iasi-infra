@@ -1,0 +1,112 @@
+# Documentación
+
+IASI considera la documentación como una parte del propio proceso de ingeniería, no se trata únicamente de escribir textos, sino de disponer de un entorno capaz de producir documentación estructurada, reproducible y publicable en distintos formatos.
+
+## ¿Por qué?
+
+Para esta función se han elegido dos herramientas principales:
+
+- **RStudio**, como entorno de trabajo para la creación y mantenimiento de la documentación.
+- **Quarto**, como sistema de publicación y generación de los distintos formatos finales.
+
+### RStudio
+
+RStudio proporciona el entorno de trabajo desde el que se redactan, organizan, revisan y generan los documentos, aunque RStudio está estrechamente ligado a R, y este esta estrechamente ligado al análisis de datos, en IASI su utilización se emplea también como entorno cómodo para trabajar con proyectos documentales basados en Quarto, como herramienta óptima para publicar.
+
+La instalación de R es, por tanto, un requisito previo de esta capa.
+
+### Quarto
+
+Quarto es el sistema de publicación utilizado por IASI, a partir de una misma fuente permite generar diferentes artefactos, entre ellos HTML,PDF,eBook, Gitdoc, etc, manteniendo una estructura común y separando el contenido de su presentación.
+
+Quarto incorpora además Pandoc, por lo que no es necesario instalarlo de forma independiente.
+
+La generación de PDF requiere una distribución TeX. En IASI utilizaremos TinyTeX, instalada y gestionada desde Quarto.
+
+## Instalacion
+
+### R/RStudio
+
+RStudio es el IDE de R, por lo que primero es necesario instalar R:
+
+[CRAN - R for Windows](https://cran.r-project.org/bin/windows/base/).
+
+En los entornos IASI se recomienda **no instalar R en `C:\Program Files`**. Aunque esa es una ubicación válida para una instalación convencional, Windows protege el directorio y puede exigir permisos de administrador cuando herramientas y automatizaciones intentan instalar paquetes en la biblioteca incluida con R.
+
+Se recomienda utilizar una ubicación dedicada al SDK, por ejemplo:
+
+```text
+C:\SDK\R\R-4.6.1
+```
+
+Los paquetes instalados por el usuario deben mantenerse en una biblioteca separada, por ejemplo:
+
+```text
+C:\SDK\R\library
+```
+
+Esta biblioteca puede definirse mediante la variable de entorno `R_LIBS_USER`. La separación evita modificar la instalación base de R y facilita actualizar o sustituir una versión sin perder los paquetes del usuario.
+
+Después de actualizar R, deben revisarse los paquetes de esta biblioteca y reinstalarse los que hayan sido construidos con una versión anterior:
+
+```r
+update.packages(
+  lib.loc = "C:/SDK/R/library",
+  ask = FALSE,
+  checkBuilt = TRUE
+)
+```
+
+Mantener una ruta estable para la biblioteca evita tener que cambiar `R_LIBS_USER` con cada versión de R. Algunos paquetes, especialmente los que contienen código compilado, pueden necesitar ser reconstruidos durante la actualización.
+
+Durante la instalación, cambiar por tanto el directorio de destino propuesto por el instalador. Después, añadir el subdirectorio `bin` de R al `PATH`; para el ejemplo anterior:
+
+```text
+C:\SDK\R\R-4.6.1\bin
+```
+
+Verificar en un terminal:
+
+```
+R --version
+```
+
+Desde R puede comprobarse la biblioteca activa con:
+
+```r
+Sys.getenv("R_LIBS_USER")
+.libPaths()
+```
+
+Una vez instalado R, descargar RStudio Desktop desde la página oficial de Posit:
+
+[Posit - RStudio Desktop](https://posit.co/download/rstudio-desktop/).
+
+Al iniciarse, RStudio utilizará normalmente la versión actual de R instalada en el sistema.
+
+
+En Windows tambien es necesario instalar una _toolchain_: 
+
+[RTools](https://cran.r-project.org/bin/windows/Rtools/)
+
+## Configuracion
+
+Una vez instalado el software, se necesitan los paquetes de R y las herramientas para genera PDF. 
+
+Iniciamos RStudio, y en la ventana de **consola** ejecutamos:
+
+```R
+install.packages(c(
+  "rmarkdown",
+  "remotes",
+  "quarto"
+), dependencies=TRUE)
+```
+
+Y por ultimo desde la ventana **Terminal**
+
+```
+quarto install tinytex
+```
+
+

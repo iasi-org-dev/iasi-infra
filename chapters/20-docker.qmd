@@ -1,0 +1,405 @@
+# Docker y Docker Compose
+
+IASI utiliza Docker para ejecutar determinados servicios de infraestructura sin incorporarlos directamente a la instalación de la máquina.
+
+Este capítulo no pretende enseñar Docker ni Docker Compose. Su objetivo es definir la convención utilizada por IASI para ejecutar, agrupar y publicar sus servicios.
+
+Para aprender Docker desde cero se recomienda utilizar la documentación oficial:
+
+- [Docker - Get started](https://docs.docker.com/get-started/)
+- [Docker Compose - Quickstart](https://docs.docker.com/compose/gettingstarted/)
+
+## Requisito
+
+La máquina debe disponer de Docker y Docker Compose.
+
+En Windows puede utilizarse Docker Desktop:
+
+[Docker - Get Docker](https://docs.docker.com/get-started/get-docker/)
+
+Verificar:
+
+```
+docker --version
+docker compose version
+```
+
+A partir de este punto asumimos que ambos comandos funcionan correctamente.
+
+## Servicios IASI
+
+La infraestructura inicial utiliza Docker Compose para ejecutar tres servicios:
+
+```text
+Docker Compose
+├── PlantUML Server
+├── Ollama
+└── Open WebUI
+```
+
+Cada servicio conserva una responsabilidad distinta:
+
+- **PlantUML Server** genera los diagramas utilizados por las publicaciones.
+- **Ollama** proporciona el *runtime* local de modelos.
+- **Open WebUI** proporciona la interfaz web para utilizar esos modelos.
+
+## Red IASI
+
+Todos los contenedores de la infraestructura se incorporan a una red Docker común denominada:
+
+```text
+iasi
+```
+
+Dentro de esa red, los servicios se localizan mediante su nombre y su puerto interno.
+
+Por ejemplo:
+
+```text
+http://ollama:11434
+http://plantuml:8080
+http://open-webui:8080
+```
+
+Esta red pertenece al ámbito interno de Docker.
+
+Desde fuera de Docker no es necesario conocerla. El acceso se realiza mediante los puertos publicados por la máquina anfitriona.
+
+## Convención de puertos
+
+IASI reserva el rango:
+
+```text
+10000-10999
+```
+
+para los servicios publicados por su infraestructura local.
+
+Esta reserva permite reconocer inmediatamente que un puerto pertenece a IASI.
+
+Siempre que sea posible, los tres últimos dígitos del puerto IASI reproducen los tres últimos dígitos del puerto característico del servicio.
+
+Por ejemplo, Ollama utiliza normalmente:
+
+```text
+11434
+```
+
+y en IASI se publica como:
+
+```text
+10434
+```
+
+De este modo, el puerto informa simultáneamente de dos cosas:
+
+```text
+10434
+│ └── 434  referencia al puerto característico del servicio
+└──── 10   rango reservado para IASI
+```
+
+Los puertos genéricos como `80`, `443` o `8080` no proporcionan información suficiente para aplicar esta regla. En esos casos se asigna un puerto IASI específico.
+
+También deberá utilizarse otro puerto cuando exista una colisión dentro del rango reservado.
+
+La asignación inicial es:
+
+```text
+Servicio          Puerto interno   Puerto IASI
+------------------------------------------------
+PlantUML Server    8080            10025
+Open WebUI         8080            10300
+Ollama            11434            10434
+```
+
+## compose.yml
+
+La composición inicial es:
+
+```yaml
+services:
+
+  plantuml:
+    image: plantuml/plantuml-server:jetty
+    container_name: plantuml-server
+    ports:
+      - "10025:8080"
+    networks:
+      - iasi
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "10434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    networks:
+      - iasi
+    restart: unless-stopped
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    depends_on:
+      - ollama
+    ports:
+      - "10300:8080"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+    volumes:
+      - open-webui:/app/backend/data
+    networks:
+      - iasi
+    restart: unless-stopped
+
+networks:
+  iasi:
+    name: iasi
+
+volumes:
+  ollama:
+  open-webui:
+```
+
+La red `iasi` es explícita para que forme parte de la definición de la infraestructura y no dependa del nombre generado automáticamente por Docker Compose.
+
+## Modelos Ollama
+
+Llama, Qwen y DeepSeek no constituyen servicios Docker independientes.
+
+Son modelos gestionados por Ollama y, por tanto, comparten el mismo contenedor, la misma *API* y el mismo puerto publicado:
+
+```text
+Ollama
+└── 10434 -> 11434
+    ├── Llama
+    ├── Qwen
+    └── DeepSeek
+```
+
+Una vez arrancado Ollama, los modelos pueden incorporarse desde la máquina IASI.
+
+Por ejemplo:
+
+```
+docker exec -it ollama ollama pull llama3.2
+docker exec -it ollama ollama pull qwen3
+docker exec -it ollama ollama pull deepseek-r1
+```
+
+Las variantes concretas deberán seleccionarse en función de los recursos disponibles y de las necesidades del entorno.
+
+Añadir, sustituir o eliminar un modelo no modifica la topología Docker ni requiere reservar un nuevo puerto IASI.
+
+## Comunicación interna
+
+Los contenedores conectados a la red `iasi` se comunican mediante sus nombres de servicio.
+
+Open WebUI utiliza:
+
+```text
+http://ollama:11434
+```
+
+No utiliza:
+
+```text
+http://localhost:10434
+```
+
+porque `localhost`, dentro del contenedor de Open WebUI, representa al propio contenedor.
+
+La comunicación interna utiliza el puerto nativo del servicio.
+
+```text
+Open WebUI
+    |
+    | http://ollama:11434
+    v
+Ollama
+```
+
+Los puertos `10xxx` se utilizan para acceder a los servicios desde fuera de Docker.
+
+## Acceso desde la máquina IASI
+
+Cuando Docker se ejecuta en la propia máquina IASI, los servicios quedan disponibles mediante:
+
+```text
+PlantUML Server   http://localhost:10025
+Ollama API        http://localhost:10434
+Open WebUI        http://localhost:10300
+```
+
+Por ejemplo, la configuración de PlantUML utilizará:
+
+```yaml
+filter-options:
+  plantuml:
+    server: http://localhost:10025
+```
+
+## Acceso desde otra máquina
+
+`localhost` significa siempre la máquina desde la que se realiza la conexión.
+
+La documentación común de IASI supone una instalación local y utiliza `localhost` como referencia.
+
+Si los servicios Docker se ejecutan en otra máquina virtual, otro equipo o un servidor compartido, las URL deberán adaptarse a la topología real.
+
+Por ejemplo:
+
+```text
+http://localhost:10025
+```
+
+podría convertirse en:
+
+```text
+http://<host-servicios>:10025
+```
+
+La misma regla se aplica al resto de servicios.
+
+Por tanto:
+
+```text
+misma máquina
+    -> localhost:10xxx
+
+otra máquina
+    -> host-servicios:10xxx
+```
+
+La red Docker `iasi` sigue siendo interna a la máquina que ejecuta los contenedores y no modifica esta regla.
+
+## Arranque
+
+Desde el directorio que contiene `compose.yml`:
+
+```
+docker compose up -d
+```
+
+Verificar el estado:
+
+```
+docker compose ps
+```
+
+Consultar los mensajes:
+
+```
+docker compose logs
+```
+
+Seguirlos mientras se producen:
+
+```
+docker compose logs -f
+```
+
+Detener y retirar los contenedores:
+
+```
+docker compose down
+```
+
+Los volúmenes persistentes no se eliminan con este comando.
+
+## Persistencia
+
+La composición define dos volúmenes:
+
+```text
+ollama
+open-webui
+```
+
+El primero conserva los modelos y datos gestionados por Ollama.
+
+El segundo conserva la configuración y los datos de Open WebUI.
+
+PlantUML Server no necesita persistencia para la configuración inicial.
+
+Esto permite destruir y recrear los contenedores sin perder los datos que deben sobrevivir a su ciclo de vida.
+
+## Actualización
+
+Las imágenes pueden actualizarse mediante:
+
+```
+docker compose pull
+docker compose up -d
+```
+
+Durante el desarrollo pueden utilizarse las etiquetas indicadas en la composición.
+
+Para una versión cerrada y reproducible de la infraestructura deberán fijarse versiones concretas de las imágenes utilizadas.
+
+## Verificación
+
+### PlantUML
+
+```
+curl http://localhost:10025
+```
+
+### Ollama
+
+```
+curl http://localhost:10434
+```
+
+### Open WebUI
+
+Abrir en el navegador:
+
+```text
+http://localhost:10300
+```
+
+## Resultado
+
+Al finalizar esta etapa, la máquina dispone de una capa de servicios identificable y reproducible:
+
+```text
+Máquina IASI
+│
+├── puertos IASI 10000-10999
+│
+└── Docker
+    │
+    └── red iasi
+        ├── PlantUML Server
+        │   └── 10025 -> 8080
+        │
+        ├── Ollama
+        │   ├── 10434 -> 11434
+        │   ├── volumen ollama
+        │   └── modelos
+        │       ├── Llama
+        │       ├── Qwen
+        │       └── DeepSeek
+        │
+        └── Open WebUI
+            ├── 10300 -> 8080
+            └── volumen open-webui
+```
+
+La convención distingue claramente tres niveles:
+
+```text
+nombre del servicio   -> comunicación dentro de Docker
+puerto interno        -> contrato del contenedor
+puerto 10xxx          -> publicación IASI hacia el exterior
+```
+
+La definición pertenece a la infraestructura.
+
+La ubicación física puede cambiar.
+
+Las direcciones utilizadas por cada consumidor deben reflejar siempre la topología real del entorno.

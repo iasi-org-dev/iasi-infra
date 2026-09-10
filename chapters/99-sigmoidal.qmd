@@ -1,0 +1,32 @@
+---
+title: "Sigmodial"
+---
+
+Para ajustar la forma, la pendiente o el desplazamiento de la curva en "S", se utiliza la función logística generalizada.
+La fórmula matemática para modificar y controlar la curva es:
+
+$$
+(f(x)=\frac{1}{1+e^{-k(x-x_{0})}})
+$$
+Componentes de ajuste\(k\) 
+(Pendiente): Modifica la inclinación de la "S". Si \(k\) es muy grande, la curva se vuelve muy empinada (parecida a un escalón). 
+Si \(k\) es cercano a cero, la curva es más suave y plana.\(x_{0}\) 
+(Desplazamiento horizontal): Mueve el centro de la "S" a la izquierda o a la derecha. 
+La curva cruzará exactamente el valor \(0.5\) cuando \(x = x_0\).
+Formas alternativas de ajuste (Rango y Altura)
+Si además de la forma necesitas ajustar el rango para que no termine exactamente entre 0 y 1, se añade la Amplitud (\(L\)) y el Desplazamiento vertical (\(B\)):
+
+$$
+(f(x)=B+\frac{L}{1+e^{-k(x-x_{0})}})
+$$
+\(L\): Define el valor máximo de la curva (su altura).
+\(B\): Define el piso o valor mínimo de la curva.
+
+✅ Explicación del ResultadoLa fórmula exacta para ajustar la curva en "S" es \
+
+$$
+f(x) = \frac{1}{1 + e^{-k(x - x_0)}})
+$$
+, donde los parámetros \(k\) y \(x_{0}\) te permiten controlar matemáticamente la inclinación y la posición central de la función.
+
+

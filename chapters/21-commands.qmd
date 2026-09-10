@@ -1,0 +1,157 @@
+# IASI Commands
+
+Hasta este punto hemos construido la infraestructura de IASI.
+
+Hemos preparado el workspace, instalado herramientas, configurado el entorno y establecido una forma común de trabajar. Cada una de esas piezas puede tener una implementación diferente, pero todas persiguen el mismo objetivo: proporcionar un entorno de ingeniería coherente, reproducible y sencillo de utilizar.
+
+Ahora necesitamos una forma igualmente sencilla de operarlo.
+
+Ahí aparecen los **IASI Commands**.
+
+## Una interfaz común
+
+IASI proporciona una interfaz de línea de comandos única:
+
+```bash
+iasi <command> [options]
+```
+
+El usuario trabaja con IASI.
+
+IASI se ocupa de lo que hay debajo.
+
+Un comando puede utilizar scripts, herramientas externas, configuración del workspace o cualquier otro componente de la infraestructura. Ese detalle pertenece a la implementación y no debería trasladarse a quien utiliza el entorno.
+
+Por ejemplo:
+
+```bash
+iasi init
+```
+
+es suficiente para inicializar un workspace IASI.
+
+No es necesario conocer qué scripts participan, qué herramientas se ejecutan, dónde están instaladas o qué operaciones internas son necesarias para completar la inicialización.
+
+Esta separación es deliberada:
+
+```text
+                    Usuario
+                       │
+                       ▼
+                 iasi <command>
+                       │
+              ┌────────┴────────┐
+              │                 │
+         configuración       workspace
+              │                 │
+              ├──── scripts ────┤
+              │                 │
+              └── herramientas ─┘
+```
+
+La interfaz permanece estable aunque la implementación evolucione.
+
+## El comando `iasi`
+
+`iasi` es el punto de entrada común a las operaciones proporcionadas por IASI.
+
+Su forma general es:
+
+```bash
+iasi <command> [options]
+```
+
+Cada comando representa una operación concreta y puede definir sus propias opciones.
+
+La ayuda está integrada en la propia interfaz:
+
+```bash
+iasi --help
+```
+
+y, cuando un comando dispone de opciones específicas:
+
+```bash
+iasi <command> --help
+```
+
+De esta forma, la línea de comandos es también una puerta de entrada a su propia documentación.
+
+## `iasi init`
+
+El primer comando proporcionado por IASI es:
+
+```bash
+iasi init
+```
+
+`iasi init` prepara el workspace para trabajar con IASI.
+
+La operación comprueba el entorno existente y realiza las acciones necesarias para dejar disponibles los componentes requeridos por el workspace.
+
+El proceso está diseñado para ser **repetible**.
+
+Ejecutar nuevamente:
+
+```bash
+iasi init
+```
+
+no debería destruir ni duplicar una configuración válida. IASI comprueba el estado existente y actúa únicamente cuando es necesario.
+
+Esto permite utilizar el mismo comando tanto para preparar inicialmente un entorno como para volver a sincronizarlo posteriormente.
+
+## Comandos como contrato
+
+Los comandos IASI no son simplemente atajos para ejecutar scripts.
+
+Constituyen una **interfaz estable entre el usuario y la infraestructura**.
+
+Detrás de:
+
+```bash
+iasi init
+```
+
+la implementación puede cambiar.
+
+Puede cambiar un script, una herramienta, una extensión o incluso desaparecer completamente alguno de los mecanismos utilizados actualmente.
+
+Mientras el contrato del comando permanezca estable, la forma de trabajar no cambia.
+
+Esta separación permite que la infraestructura evolucione sin trasladar esa evolución al usuario.
+
+## Una infraestructura que se utiliza
+
+Los capítulos anteriores han descrito las piezas internas de `iasi-infra`.
+
+Los comandos proporcionan la capa final:
+
+```text
+Infraestructura
+      │
+      ▼
+Configuración
+      │
+      ▼
+Herramientas
+      │
+      ▼
+Automatización
+      │
+      ▼
+IASI Commands
+      │
+      ▼
+   Usuario
+```
+
+La complejidad continúa existiendo.
+
+Simplemente queda donde debe estar: **dentro de la infraestructura**.
+
+Para quien utiliza IASI, todo puede comenzar con algo mucho más sencillo:
+
+```bash
+iasi init
+```

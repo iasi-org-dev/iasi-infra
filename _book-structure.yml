@@ -1,0 +1,4 @@
+book:
+  chapters:
+    - "index.qmd"
+    - "01-manifesto-bilingual.qmd"

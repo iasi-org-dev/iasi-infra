@@ -1,0 +1,196 @@
+# Sistema operativo base
+
+Una vez creada la máquina virtual, el siguiente objetivo es dejar disponible un sistema operativo base, limpio y mínimamente preparado.
+Tenemos dos "sabores": Windows y Linux
+
+## Windows
+
+**Asumimos que existe WinGet**, si no habria que instalarlo. 
+
+Necesitamos los siguientes paquetes:
+
+- Git
+- Github CLI
+- Notepad++
+- Adobe Acrobat Reader
+- Docker Compose
+
+Además, puede instalarse opcionalmente un navegador web adicional, a elección del usuario. Windows ya incorpora Microsoft Edge, por lo que IASI no impone un navegador concreto.
+
+**Se recomienda ejecutar los comandos como Administrador**
+
+### Instalacion
+
+#### Git
+
+Programa de control de versiones 
+
+```powershell
+winget install --id Git.Git -e
+```
+
+#### GitHub CLI
+
+GitHub CLI (`gh`) permite utilizar GitHub desde la línea de comandos y automatizar operaciones sobre repositorios y organizaciones.
+
+```powershell
+winget install --id GitHub.cli -e
+```
+
+#### Notepad++
+
+Un editor de textos que siempre viene bien
+
+```powershell
+winget install --id Notepad++.Notepad++ -e
+```
+
+#### Navegador web (opcional)
+
+Windows incorpora Microsoft Edge, por lo que la máquina ya dispone de un navegador desde la instalación base.
+
+El usuario puede instalar opcionalmente el navegador de su preferencia. IASI no establece un navegador concreto como requisito.
+
+#### Adobe Acrobat Reader
+
+Aunque los navegadores modernos permiten visualizar documentos PDF, recomendamos Adobe Acrobat Reader como lector PDF de referencia.
+
+Puede instalarse con WinGet:
+
+```powershell
+winget install --id Adobe.Acrobat.Reader.64-bit -e
+```
+
+Referencia:
+
+[Adobe Acrobat Reader](https://www.adobe.com/es/acrobat/pdf-reader.html)
+
+#### OpenSSH Client
+
+Un cliente _shell_ seguro
+
+Primero comprobar si está disponible:
+
+```powershell
+Get-WindowsCapability -Online | Where-Object Name -like 'OpenSSH.Client*'
+```
+
+Si no está instalado:
+
+```powershell
+Add-WindowsCapability -Online -Name OpenSSH.Client~~~~0.0.1.0
+```
+
+#### Docker
+
+La plataforma para generar contenedores
+
+```powershell
+winget install --id Docker.DockerDesktop -e
+```
+
+### Verfificacion
+
+Ejecutar lo siguiente
+
+```powershell
+Write-Host "Verificando Git..." -NoNewline
+
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    Write-Host " OK"
+} else {
+    Write-Host " KO"
+}
+
+Write-Host "Verificando Notepad++..." -NoNewline
+
+if (Get-Command notepad++ -ErrorAction SilentlyContinue) {
+    Write-Host " OK"
+} else {
+    Write-Host " KO"
+}
+
+Write-Host "Verificando PowerShell 7..." -NoNewline
+
+if (Get-Command pwsh -ErrorAction SilentlyContinue) {
+    $version = & pwsh -NoProfile -Command '$PSVersionTable.PSVersion.Major'
+    if ($version -ge 7) {
+        Write-Host " OK"
+    } else {
+        Write-Host " KO"
+    }
+} else {
+    Write-Host " KO"
+}
+
+Write-Host "Verificando Docker..." -NoNewline
+
+if (Get-Command docker -ErrorAction SilentlyContinue) {
+    Write-Host " OK"
+} else {
+    Write-Host " KO"
+}
+
+Write-Host "Verificando Docker Compose..." -NoNewline
+
+if (docker compose version 2>$null) {
+    Write-Host " OK"
+} else {
+    Write-Host " KO"
+}
+
+```
+
+Además de estas comprobaciones, debe verificarse manualmente que:
+
+- puede abrirse una página web con el navegador seleccionado;
+- puede abrirse un documento PDF con Adobe Acrobat Reader.
+
+### Configuracion
+
+#### Git
+
+Una vez todo instalado, git debe ser configurado y conectado a GitHub. Actualmente recomendamos SSH, mientras GitHub no exija 2FC. La configuración de Git se hace en tres pasos:
+
+
+Desde git bash, que estara disponible
+
+```bash
+git config --global user.name "Tu Nombre"
+git config --global user.email "tu@email.com"
+
+ssh-keygen -t ed25519 -C "tu@email.com"
+
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+cat ~/.ssh/id_ed25519.pub
+
+ssh -T git@github.com
+```
+
+Y copiamos la clave publica que empezara por ssh-ed25519 al portapapeles.
+
+Nos conectamos a Github, Settings de usuario (El icono del usuario) | SSH and GPG Keys
+
+Creamos una nueva clave SSH:
+
+- Le damos un nombre descriptivo
+- Pegamos la clave que hemos obtenido de la maquina virtual
+
+En git bash ejecutamos
+
+```
+ssh -T git@github.com
+```
+
+La primera vez preguntará si se confia en esa clave: Yes
+
+
+## Linux
+
+TODO Pendiente de escribir
+
+No deberia requerir nada especial salvo instalaciones minimas
+
+
