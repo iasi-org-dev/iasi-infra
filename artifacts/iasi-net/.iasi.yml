@@ -1,0 +1,8 @@
+type: software
+builder: iasi-script
+name: iasi-net
+output-dir: ../../bin
+
+targets:
+  - powershell
+

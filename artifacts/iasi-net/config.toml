@@ -1,0 +1,9 @@
+# IASI internal network.
+# Provides the private network shared by the IASI infrastructure nodes.
+
+template = "network"
+
+[network]
+name = "iasi-net"         # Hyper-V virtual switch name.
+subnet = "10.77.0.0/24"   # Private IPv4 network used by IASI nodes.
+gateway = "10.77.0.1"     # Host address and gateway for the internal network.

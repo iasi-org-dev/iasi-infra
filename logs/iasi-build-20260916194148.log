@@ -1,0 +1,46 @@
+19:41:48 - Command [C:\iasi-org-dev\iasi-infra]: git remote get-url origin
+19:41:48 - Command [.]: gh variable get VERSION --org iasi-org-dev
+--- PARMS ------------------------------------------------
+Verbose: 1
+All: false
+Checkpoints: false
+Debug: false
+PrepareOnly: false
+DryRun: false
+Force: false
+Help: false
+Install: false
+Local: false
+Push: false
+Tolerant: false
+Message: "build"
+Format: ""
+Platforms:
+  - windows
+  - linux
+Path: ""
+LogDir: ""
+Organization: "iasi-org-dev"
+Version: "v0.5.0"
+TargetVersion: ""
+MaterializeDestination: ""
+Subcommand: ""
+RequestedTargets:
+Targets:
+  iasi-infra [repository]
+    iasi-net [software]
+Exclusions:
+  - .git
+  - .github
+  - tests
+Repos:
+  - C:\iasi-org-dev\iasi-infra
+BlackList:
+----------------------------------------------------------
+19:41:49 - ============================================================
+19:41:49 - Build iasi-infra [repository]
+19:41:49 - ============================================================
+19:41:49 - ============================================================
+19:41:49 -   Build iasi-net [software]
+19:41:49 - ============================================================
+19:41:49 - Command [C:\iasi-org-dev\iasi-infra\artifacts\iasi-net]: iasi-script
